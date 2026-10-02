@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI PKn MTs - Eksplorasi UUD NRI Tahun 1945 | Kemenag Gorontalo Utara</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gorut-red': '#C62828',
+                        'gorut-gold': '#FFB300',
+                        'gorut-darkgold': '#D48800',
+                        'madrasah-green': '#00897B',
+                        'madrasah-darkgreen': '#004D40',
+                        'coastal-blue': '#0288D1',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+            color: #1e293b;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Hero Landing Gradient - Vibrant Red & Gold (Nuansa Gorontalo & Panji) */
+        .bg-hero-pattern {
+            background: linear-gradient(135deg, #B71C1C 0%, #D32F2F 45%, #FFB300 100%);
+        }
+
+        .gold-border {
+            border: 3px solid #FFD54F;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(180deg, #FFF9C4 0%, #FFC107 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+
+        .nav-btn.active {
+            background-color: #00897B;
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0, 137, 123, 0.3);
+        }
+
+        .badge-glow {
+            box-shadow: 0 0 15px rgba(255, 179, 0, 0.6);
+        }
+
+        /* Drag & Drop Visual Indicator */
+        .draggable-item {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.03);
+        }
+
+        .drop-zone {
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .drop-zone.drag-over {
+            background-color: #e0f2fe;
+            border-color: #0288d1;
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 3s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased">
+
+    <!-- Audio Synthesizer Toggle & Floating Controls -->
+    <div class="fixed top-3 right-3 z-50 flex items-center gap-2 bg-white/90 backdrop-blur border border-slate-200 px-3 py-1.5 rounded-full shadow-md text-xs font-semibold text-slate-700">
+        <span id="audio-status-label">🔊 Efek Suara: Aktif</span>
+        <button onclick="toggleAudio()" id="audio-toggle-btn" class="bg-amber-500 hover:bg-amber-600 text-white p-1 rounded-full transition" title="Mati/Hidupkan Suara">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+        </button>
+        <button onclick="openDatabaseSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded-full transition flex items-center gap-1 text-[10px]" title="Hubungkan Google Sheets Guru">
+            <span>📊 DB Sheets</span>
+        </button>
+    </div>
+
+    <!-- Modal Konfigurasi Database Google Sheets -->
+    <div id="modal-db-settings" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <span>📊 Pengaturan Database Google Sheets Guru</span>
+                </h3>
+                <button onclick="closeDatabaseSettings()" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Masukkan **URL Aplikasi Web Google Apps Script** dari Spreadsheet Guru untuk menyimpan hasil kuis siswa dan mengambil soal dari database:
+            </p>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Web App URL (Code.gs):</label>
+                <input type="url" id="input-gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div id="db-connection-status" class="text-[11px] font-semibold text-slate-500 p-2 bg-slate-50 rounded-lg">
+                Status: Belum Terhubung (Menggunakan Mode Fallback Lokal)
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeDatabaseSettings()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold">Batal</button>
+                <button onclick="saveDatabaseURL()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow">Simpan & Sync</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- SECTION 0: SPLASH LANDING SCREEN -->
+    <section id="screen-splash" class="min-h-screen bg-hero-pattern flex flex-col justify-between p-4 sm:p-8 text-white relative overflow-hidden">
+        <!-- SVG Background Accents (Motif Karawo / Pesisir Gorontalo) -->
+        <div class="absolute -top-12 -left-12 w-64 h-64 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-red-900/40 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Header Logos / Identification -->
+        <div class="flex flex-wrap justify-between items-center gap-4 z-10">
+            <div class="flex items-center gap-3 bg-black/30 backdrop-blur-md px-4 py-2 rounded-2xl border border-amber-300/30">
+                <svg class="w-8 h-8 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div>
+                    <p class="text-xs font-semibold text-amber-200 tracking-wider uppercase">Kanwil Kemenag Prov. Gorontalo</p>
+                    <p class="text-sm font-bold text-white">Kantor Kemenag Kab. Gorontalo Utara</p>
+                </div>
+            </div>
+            <span class="bg-amber-400 text-red-950 font-extrabold text-xs px-3 py-1.5 rounded-full shadow-lg border border-amber-200 uppercase tracking-widest">
+                Fase D / Kelas VII MTs
+            </span>
+        </div>
+
+        <!-- Main Hero Title & Visual Badge -->
+        <div class="my-auto py-12 text-center max-w-4xl mx-auto z-10">
+            <div class="inline-flex items-center gap-2 bg-amber-400/20 text-amber-200 border border-amber-300/40 px-4 py-1.5 rounded-full text-xs font-medium mb-6 animate-pulse-subtle">
+                <span class="w-2 h-2 rounded-full bg-amber-300"></span>
+                MPI Eksplorasi Modular Pendidikan Pancasila & Kewarganegaraan
+            </div>
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight mb-4 drop-shadow-md">
+                EKSPLORASI KONSTITUSI <br>
+                <span class="gold-gradient-text">UUD NRI TAHUN 1945</span>
+            </h1>
+            <p class="text-base sm:text-lg text-amber-100 max-w-2xl mx-auto font-light leading-relaxed mb-8">
+                Menelusuri Sejarah, Kedudukan, dan Fungsi Hukum Dasar Negara untuk Menumbuhkan Sikap Menghormati Konstitusi dalam Wujud <strong class="text-amber-300 font-semibold">Cinta Ilmu & Cinta Tanah Air</strong> di Bumi Gorontalo Utara.
+            </p>
+
+            <!-- Student Profile Form -->
+            <div class="bg-white/10 backdrop-blur-md border border-amber-300/40 p-6 rounded-3xl max-w-md mx-auto shadow-2xl text-left">
+                <label class="block text-xs font-bold uppercase tracking-wider text-amber-200 mb-2">Identitas Siswa / Kelompok:</label>
+                <div class="space-y-3">
+                    <input type="text" id="input-student-name" placeholder="Masukkan Nama Lengkap Anda..." class="w-full px-4 py-3 rounded-xl bg-slate-900/60 border border-amber-300/40 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm">
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="input-student-class" class="px-3 py-2.5 rounded-xl bg-slate-900/60 border border-amber-300/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            <option value="VII A">Kelas VII A</option>
+                            <option value="VII B">Kelas VII B</option>
+                            <option value="VII C">Kelas VII C</option>
+                            <option value="Kelompok Pesisir">Kelompok Pesisir</option>
+                            <option value="Kelompok Tani">Kelompok Agraris</option>
+                        </select>
+                        <select id="input-student-location" class="px-3 py-2.5 rounded-xl bg-slate-900/60 border border-amber-300/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+                            <option value="MTsN 1 Gorut (Kwandang)">MTsN 1 Gorut (Kwandang)</option>
+                            <option value="MTs Sumalata">MTs Sumalata</option>
+                            <option value="MTs Atinggola">MTs Atinggola</option>
+                            <option value="MTs Tolinggula">MTs Tolinggula</option>
+                            <option value="MTs Lainnya">MTs Lainnya di Gorut</option>
+                        </select>
+                    </div>
+                    <button onclick="startExploration()" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold py-3.5 px-6 rounded-xl shadow-lg transform active:scale-95 transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider mt-2">
+                        <span>Mulai Eksplorasi Interaktif</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Nuansa Daerah -->
+        <div class="flex flex-wrap justify-between items-center text-xs text-amber-200/80 pt-6 border-t border-amber-300/20 z-10">
+            <p>📍 Konteks Wilayah Pesisir & Agraris Kabupaten Gorontalo Utara</p>
+            <p>E-Madrasah Inovatif Gorontalo © 2026</p>
+        </div>
+    </section>
+
+    <!-- MAIN APPLICATION CONTAINER (Hidden initially) -->
+    <div id="main-app" class="hidden min-h-screen flex flex-col justify-between">
+        
+        <!-- Navigation Header -->
+        <header class="bg-emerald-900 text-white sticky top-0 z-40 shadow-lg border-b border-emerald-700">
+            <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+                
+                <!-- Brand Title -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-400 text-emerald-950 p-2 rounded-xl font-black text-lg shadow-md">
+                        UUD'45
+                    </div>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-bold text-white leading-tight">MPI PKn MTs Gorontalo Utara</h2>
+                        <p class="text-xs text-emerald-200">
+                            Siswa: <span id="display-user-name" class="font-bold text-amber-300">Fulan</span> | <span id="display-user-class" class="text-emerald-100">Kelas VII</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="flex items-center gap-1 overflow-x-auto py-1 no-scrollbar w-full md:w-auto">
+                    <button onclick="switchTab('profil')" id="nav-profil" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-100 hover:bg-emerald-800 transition whitespace-nowrap flex items-center gap-1.5">
+                        <span>👤 Profil Pengembang</span>
+                    </button>
+                    <button onclick="switchTab('modul1')" id="nav-modul1" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-100 hover:bg-emerald-800 transition whitespace-nowrap flex items-center gap-1.5">
+                        <span>📜 1. Sejarah</span>
+                    </button>
+                    <button onclick="switchTab('modul2')" id="nav-modul2" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-100 hover:bg-emerald-800 transition whitespace-nowrap flex items-center gap-1.5">
+                        <span>⚖️ 2. Kedudukan</span>
+                    </button>
+                    <button onclick="switchTab('modul3')" id="nav-modul3" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-100 hover:bg-emerald-800 transition whitespace-nowrap flex items-center gap-1.5">
+                        <span>🧩 3. Fungsi</span>
+                    </button>
+                    <button onclick="switchTab('modul4')" id="nav-modul4" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-100 hover:bg-emerald-800 transition whitespace-nowrap flex items-center gap-1.5">
+                        <span>🌊 4. Konteks Gorut</span>
+                    </button>
+                    <button onclick="switchTab('kuis')" id="nav-kuis" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-300 hover:bg-amber-500 hover:text-slate-950 transition whitespace-nowrap flex items-center gap-1.5 border border-amber-400/40">
+                        <span>🎯 5. Evaluasi Kuis</span>
+                    </button>
+                </nav>
+
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 flex-grow">
+            
+            <!-- MODULE 1: SEJARAH UUD NRI TAHUN 1945 -->
+            <section id="tab-modul1" class="tab-content space-y-6">
+                <!-- Module Header -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Modul 1 Exploration</span>
+                        <h2 class="text-2xl font-bold text-slate-800 mt-2">Sejarah Perumusan & Pengesahan UUD NRI 1945</h2>
+                        <p class="text-sm text-slate-600 mt-1">Gunakan timeline interaktif di bawah untuk mempelajari tonggak perjuangan para pendiri bangsa dalam menyusun konstitusi negara.</p>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 text-amber-900 p-3 rounded-xl text-xs flex items-center gap-3">
+                        <span class="text-2xl">💡</span>
+                        <p><strong>Cinta Tanah Air:</strong> Para pendiri bangsa mendahulukan persatuan di atas kepentingan golongan demi tegaknya NKRI.</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Timeline Controls -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span>⏱️ Timeline Interaktif Perumusan UUD 1945</span>
+                        <span class="text-xs font-normal text-slate-500">(Klik setiap tahapan untuk melihat detail)</span>
+                    </h3>
+
+                    <!-- Timeline Step Buttons -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button onclick="loadTimelineStep(1)" id="time-btn-1" class="timeline-step-btn p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 text-left transition bg-slate-50">
+                            <span class="text-xs font-bold text-emerald-700 block">Tahap 1</span>
+                            <span class="text-sm font-bold text-slate-800 block mt-1">Sidang BPUPK I</span>
+                            <span class="text-xs text-slate-500">29 Mei - 1 Juni 1945</span>
+                        </button>
+                        <button onclick="loadTimelineStep(2)" id="time-btn-2" class="timeline-step-btn p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 text-left transition bg-slate-50">
+                            <span class="text-xs font-bold text-emerald-700 block">Tahap 2</span>
+                            <span class="text-sm font-bold text-slate-800 block mt-1">Panitia Sembilan</span>
+                            <span class="text-xs text-slate-500">22 Juni 1945</span>
+                        </button>
+                        <button onclick="loadTimelineStep(3)" id="time-btn-3" class="timeline-step-btn p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 text-left transition bg-slate-50">
+                            <span class="text-xs font-bold text-emerald-700 block">Tahap 3</span>
+                            <span class="text-sm font-bold text-slate-800 block mt-1">Sidang BPUPK II</span>
+                            <span class="text-xs text-slate-500">10 - 17 Juli 1945</span>
+                        </button>
+                        <button onclick="loadTimelineStep(4)" id="time-btn-4" class="timeline-step-btn p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 text-left transition bg-slate-50">
+                            <span class="text-xs font-bold text-emerald-700 block">Tahap 4</span>
+                            <span class="text-sm font-bold text-slate-800 block mt-1">Sidang PPKI</span>
+                            <span class="text-xs text-slate-500">18 Agustus 1945</span>
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Timeline Detail Container -->
+                    <div id="timeline-detail-box" class="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl transition-all duration-300">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Summary Material Card -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center font-bold text-lg">🏛️</div>
+                        <h4 class="font-bold text-slate-800">Peran Penting BPUPK & PPKI</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            <strong>BPUPK</strong> (Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan) bertugas merancang naskah dasar negara dan rancangan UUD. Setelah tugas BPUPK selesai, dilanjutkan oleh <strong>PPKI</strong> (Panitia Persiapan Kemerdekaan Indonesia) yang mengesahkan UUD 1945 pada tanggal 18 Agustus 1945.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">🤝</div>
+                        <h4 class="font-bold text-slate-800">Keteladanan Pendiri Bangsa</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Perubahan 7 kata dalam Piagam Jakarta menjadi "Ketuhanan Yang Maha Esa" membuktikan kebesaran jiwa, sikap musyawarah, dan toleransi tinggi para tokoh bangsa dari berbagai wilayah nusantara demi keutuhan NKRI.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 2: KEDUDUKAN & HIRARKI UUD NRI TAHUN 1945 -->
+            <section id="tab-modul2" class="tab-content space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <span class="text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-200">Modul 2 Exploration</span>
+                    <h2 class="text-2xl font-bold text-slate-800 mt-2">Kedudukan & Hirarki Peraturan Perundang-undangan</h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Sesuai **UU No. 12 Tahun 2011 jo UU No. 13 Tahun 2022**, UUD NRI Tahun 1945 bertindak sebagai **Hukum Dasar Tertinggi** (Supreme Law of the Land). Semua aturan hukum di bawahnya tidak boleh bertentangan dengan UUD 1945.
+                    </p>
+                </div>
+
+                <!-- Interactive Drag & Drop Hierarchy Game -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: Target Pyramid Hierarchy -->
+                    <div class="lg:col-span-7 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center justify-between">
+                            <span>🔺 Tata Urutan Peraturan (Urutkan dari Tertinggi)</span>
+                            <button onclick="resetHierarchyGame()" class="text-xs text-blue-600 hover:underline">Reset Urutan</button>
+                        </h3>
+                        <p class="text-xs text-slate-500">Tarik (drag) atau klik item dari kotak sebelah kanan untuk menempatkan pada urutan piramida hukum yang tepat!</p>
+
+                        <div class="space-y-2" id="pyramid-target-container">
+                            <!-- Drop Slots Generated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Source Cards -->
+                    <div class="lg:col-span-5 bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
+                        <h3 class="text-base font-bold text-slate-800">📦 Pilihan Peraturan Hukum</h3>
+                        <p class="text-xs text-slate-500">Pilih dan tempatkan pada tingkat hirarki yang sesuai:</p>
+                        
+                        <div id="source-cards-container" class="space-y-2">
+                            <!-- Source cards populated via JS -->
+                        </div>
+
+                        <div id="hierarchy-feedback" class="hidden p-4 rounded-xl text-xs font-semibold"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 3: FUNGSI UUD NRI TAHUN 1945 -->
+            <section id="tab-modul3" class="tab-content space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <span class="text-xs font-bold text-teal-700 uppercase tracking-widest bg-teal-50 px-3 py-1 rounded-full border border-teal-200">Modul 3 Exploration</span>
+                    <h2 class="text-2xl font-bold text-slate-800 mt-2">Fungsi Utama UUD NRI Tahun 1945</h2>
+                    <p class="text-sm text-slate-600 mt-1">UUD 1945 memiliki tiga fungsi vital dalam penyelenggaraan negara Republik Indonesia.</p>
+                </div>
+
+                <!-- 3 Function Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border-t-4 border-emerald-500 shadow-sm space-y-3">
+                        <div class="text-3xl">🛡️️</div>
+                        <h3 class="font-bold text-slate-800 text-base">1. Alat Kontrol (Pengawas)</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Mengontrol dan menguji apakah aturan hukum yang lebih rendah (seperti PP, Perpres, atau Perda) sesuai atau bertentangan dengan norma hukum UUD 1945.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border-t-4 border-amber-500 shadow-sm space-y-3">
+                        <div class="text-3xl">⚙️</div>
+                        <h3 class="font-bold text-slate-800 text-base">2. Pengatur Hubungan</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Mengatur pembagian kekuasaan antar-lembaga negara (MPR, Presiden, DPR, MK) serta mengatur hubungan kekuasaan antara negara dengan warga negara.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border-t-4 border-red-500 shadow-sm space-y-3">
+                        <div class="text-3xl">🛑</div>
+                        <h3 class="font-bold text-slate-800 text-base">3. Penentu & Pembatas Kekuasaan</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Membatasi kekuasaan organ negara agar tidak bertindak sewenang-wenang serta menjamin hak-hak asasi manusia seluruh warga negara.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Constitutional Balance Manipulator Slider -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span>🎛️ Simulasi Manipulasi Variabel: Keberadaan Fungsi UUD 1945</span>
+                    </h3>
+                    <p class="text-xs text-slate-600">Geser slider di bawah untuk mensimulasikan kondisi tatanan negara saat UUD 1945 dijalankan secara konsisten vs diabaikan!</p>
+
+                    <div class="space-y-4 max-w-2xl mx-auto">
+                        <div class="flex justify-between text-xs font-bold text-slate-700">
+                            <span class="text-red-600">❌ Tanpa Pembatasan UUD (Otoriter)</span>
+                            <span class="text-amber-600">⚠️ Sebagian Dijalankan</span>
+                            <span class="text-emerald-600">✅ Pelaksanaan Konstitusi Utuh</span>
+                        </div>
+                        <input type="range" id="sim-slider" min="0" max="2" value="2" oninput="updateSimState(this.value)" class="w-full accent-emerald-600 cursor-pointer">
+                        
+                        <!-- Simulation Result Box -->
+                        <div id="sim-result-card" class="p-5 rounded-xl border transition-all duration-300">
+                            <!-- Dynamic Content populated via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 4: KONTEKS LOKAL GORONTALO UTARA & SIKAP KONSTITUSIONAL -->
+            <section id="tab-modul4" class="tab-content space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <span class="text-xs font-bold text-cyan-700 uppercase tracking-widest bg-cyan-50 px-3 py-1 rounded-full border border-cyan-200">Modul 4 Exploration</span>
+                    <h2 class="text-2xl font-bold text-slate-800 mt-2">Penerapan Konstitusi di Bumi Gorontalo Utara</h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Bagaimana nilai-nilai UUD NRI Tahun 1945 diwujudkan oleh masyarakat pesisir pantai dan wilayah pertanian di Kwandang, Sumalata, Atinggola, dan Tolinggula?
+                    </p>
+                </div>
+
+                <!-- Interactive Case Studies / Dilemma Scenarios -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Scenario 1: Pesisir / Fishermen -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">🌊</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Studi Kasus 1: Nelayan Pesisir Kwandang</h3>
+                                <p class="text-xs text-cyan-700 font-semibold">Korelasional: Pasal 33 Ayat (3) UUD 1945</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Para nelayan di pelabuhan Kwandang menyepakati aturan lokal (rembuk warga) melarang penggunaan pukat harimau dan bahan peledak demi menjaga terumbu karang dan keberlanjutan hasil laut.
+                        </p>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                            <p class="text-xs font-bold text-slate-700">Pertanyaan Penalaran:</p>
+                            <p class="text-xs text-slate-600">Mengapa kesepakatan nelayan tersebut selaras dengan Pasal 33 ayat 3 UUD 1945?</p>
+                            <button onclick="toggleReasoning('reason1')" class="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">
+                                <span>🔍 Tampilkan Penjelasan Edukatif</span>
+                            </button>
+                            <div id="reason1" class="hidden mt-2 p-3 bg-emerald-50 rounded-lg border border-emerald-200 text-xs text-emerald-950 leading-relaxed">
+                                <strong>Penalaran:</strong> Pasal 33 ayat 3 menyatakan bahwa <em>"Bumi, air, dan kekayaan alam yang terkandung di dalamnya dikuasai oleh negara dan dipergunakan untuk sebesar-besar kemakmuran rakyat."</em> Menjaga ekosistem laut pesisir Gorut dari kerusakan adalah bentuk tanggung jawab konstitusional warga agar kekayaan alam tetap memberi kemakmuran bagi generasi sekarang dan mendatang.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 2: Agraris / Agriculture & Education -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">🌾</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Studi Kasus 2: Pelajar Agraris Tolinggula</h3>
+                                <p class="text-xs text-amber-700 font-semibold">Korelasional: Pasal 31 Ayat (1) UUD 1945</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Anak-anak keluarga petani jagung di Tolinggula tetap antusias menuntut ilmu di madrasah dengan penuh kedisiplinan dan rasa hormat kepada guru, serta rajin membaca buku.
+                        </p>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                            <p class="text-xs font-bold text-slate-700">Pertanyaan Penalaran:</p>
+                            <p class="text-xs text-slate-600">Sikap apa yang diwujudkan siswa madrasah dalam konteks hak dan kewajiban konstitusi?</p>
+                            <button onclick="toggleReasoning('reason2')" class="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">
+                                <span>🔍 Tampilkan Penjelasan Edukatif</span>
+                            </button>
+                            <div id="reason2" class="hidden mt-2 p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-950 leading-relaxed">
+                                <strong>Penalaran:</strong> Pasal 31 ayat 1 menjamin <em>"Setiap warga negara berhak mendapatkan pendidikan."</em> Siswa MTs yang bersungguh-sungguh belajar mewujudkan sikap <strong>Cinta Ilmu</strong> sebagai pemenuhan hak sekaligus kewajiban moral untuk membangun Gorontalo Utara yang berkemajuan.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Interactive Checklist / Self-Reflection -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-base font-bold text-slate-800">✅ Check-List Sikap Menghormati Konstitusi di Madrasah & Rumah</h3>
+                    <p class="text-xs text-slate-500">Centang perilaku yang sudah kamu terapkan dalam kehidupan sehari-hari:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <label class="flex items-start gap-2 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-emerald-50 transition">
+                            <input type="checkbox" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>Mematuhi tata tertib madrasah dan jadwal piket kelas tanpa harus diawasi ketat.</span>
+                        </label>
+                        <label class="flex items-start gap-2 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-emerald-50 transition">
+                            <input type="checkbox" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>Menghormati perbedaan pendapat teman saat musyawarah kerja kelompok PKn.</span>
+                        </label>
+                        <label class="flex items-start gap-2 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-emerald-50 transition">
+                            <input type="checkbox" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>Menjaga kebersihan fasilitas umum, lingkungan madrasah, dan kebersihan pantai/sungai.</span>
+                        </label>
+                        <label class="flex items-start gap-2 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-emerald-50 transition">
+                            <input type="checkbox" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>Mengutamakan kejujuran saat mengerjakan kuis dan tugas mandiri.</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 5: KUIS EVALUASI FORMATIF INTERAKTIF -->
+            <section id="tab-kuis" class="tab-content space-y-6 hidden">
+                
+                <!-- Quiz Overview / Score Header -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-amber-800 uppercase tracking-widest bg-amber-100 px-3 py-1 rounded-full border border-amber-300">Modul 5 Evaluation</span>
+                        <h2 class="text-2xl font-bold text-slate-800 mt-2">Kuis Formatif: Evaluasi Pemahaman UUD 1945</h2>
+                        <p class="text-sm text-slate-600 mt-1">Uji pemahamanmu mengenai sejarah, kedudukan, fungsi UUD 1945, dan sikap konstitusional.</p>
+                        <p id="db-sync-indicator" class="text-xs font-bold text-emerald-600 mt-1 flex items-center gap-1">
+                            <span>🟢 Status Sync: Database Lokal Modul</span>
+                        </p>
+                    </div>
+
+                    <!-- Live Progress & Score Container -->
+                    <div class="bg-slate-900 text-white p-4 rounded-2xl flex items-center gap-4 border border-slate-800 min-w-[220px]">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Skor Anda Saat Ini</p>
+                            <p class="text-2xl font-black text-amber-400"><span id="quiz-score-display">0</span> / 100</p>
+                        </div>
+                        <div class="h-8 w-px bg-slate-700"></div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Progres Soal</p>
+                            <p class="text-sm font-bold text-emerald-400"><span id="quiz-answered-count">0</span> dari 5</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Questions List Container -->
+                <div id="quiz-questions-container" class="space-y-6">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Final Scorecard Card & Badge Award (Hidden until completed or submitted) -->
+                <div id="quiz-results-card" class="hidden bg-white p-8 rounded-3xl border-2 border-amber-400 shadow-xl text-center space-y-6">
+                    <div class="inline-block p-4 bg-amber-100 rounded-full text-4xl mb-2" id="quiz-badge-icon">
+                        🏆
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-800" id="quiz-badge-title">Gelar Evaluasi Siswa</h3>
+                        <p class="text-sm text-slate-600 mt-1" id="quiz-final-message">Pesan evaluasi...</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs">
+                        <div>
+                            <span class="text-slate-500 block">Total Jawaban Benar:</span>
+                            <span id="res-correct" class="text-base font-bold text-emerald-600">0 / 5</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block">Nilai Akhir:</span>
+                            <span id="res-score" class="text-base font-bold text-amber-600">0</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block">Status Capaian:</span>
+                            <span id="res-status" class="text-base font-bold text-blue-600">Sangat Baik</span>
+                        </div>
+                    </div>
+
+                    <!-- Indicator Penyimpanan Database -->
+                    <div id="db-save-status-box" class="hidden p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 font-semibold max-w-lg mx-auto">
+                        🔄 Mengirim hasil evaluasi ke database Google Sheets Guru...
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-3 pt-2">
+                        <button onclick="resetQuiz()" class="px-5 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs transition">
+                            🔄 Ulangi Kuis
+                        </button>
+                        <button onclick="printSummaryCertificate()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
+                            <span>🖨️ Cetak / Simpan Sertifikat Laporan</span>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- PROFIL PENGEMBANG SECTION -->
+            <section id="tab-profil" class="tab-content space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <span class="text-xs font-bold text-amber-800 uppercase tracking-widest bg-amber-100 px-3 py-1 rounded-full border border-amber-300">Developer Profile</span>
+                    <h2 class="text-2xl font-bold text-slate-800 mt-2">Profil Pengembang Media Pembelajaran</h2>
+                    <p class="text-sm text-slate-600 mt-1">Informasi dan identitas pengembang Media Pembelajaran Interaktif (MPI) PKn MTs Gorontalo Utara.</p>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-8">
+                    <!-- Photo Container -->
+                    <div class="flex flex-col items-center shrink-0">
+                        <a href="https://freeimage.host/i/ncnRq92" target="_blank" rel="noopener noreferrer" class="group relative block overflow-hidden rounded-2xl border-4 border-amber-400 shadow-xl transition hover:scale-105">
+                            <img src="https://iili.io/ncnRq92.md.png" alt="Foto Profil Pengembang" class="w-40 h-40 sm:w-48 sm:h-48 object-cover rounded-xl" border="0">
+                        </a>
+                        <span class="mt-3 inline-block bg-emerald-100 text-emerald-800 text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-300">
+                            ✓ Tim Pengembang E-Madrasah
+                        </span>
+                    </div>
+
+                    <!-- Detail Information -->
+                    <div class="space-y-4 text-center md:text-left flex-grow">
+                        <div>
+                            <h3 class="text-xl sm:text-2xl font-black text-slate-800">Pengembang MPI PKn MTs</h3>
+                            <p class="text-xs font-bold text-emerald-700 mt-1">Pengembang Media Pembelajaran Interaktif Digital</p>
+                            <p class="text-xs text-slate-500">Kanwil Kementerian Agama Provinsi Gorontalo</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2">
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <span class="text-slate-400 block font-semibold text-[10px] uppercase">Wilayah Sasaran</span>
+                                <span class="font-bold text-slate-800">Kab. Gorontalo Utara, Gorontalo</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <span class="text-slate-400 block font-semibold text-[10px] uppercase">Jenjang / Fase</span>
+                                <span class="font-bold text-slate-800">MTs / Kelas VII (Fase D)</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <span class="text-slate-400 block font-semibold text-[10px] uppercase">Mata Pelajaran</span>
+                                <span class="font-bold text-slate-800">Pendidikan Pancasila & Kewarganegaraan</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <span class="text-slate-400 block font-semibold text-[10px] uppercase">Moda Akses</span>
+                                <span class="font-bold text-emerald-600">100% Mandiri / Offline (Single-File)</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-950 leading-relaxed">
+                            <p class="font-bold mb-1">💡 Visi Pembelajaran Inovatif:</p>
+                            <p>Menghadirkan media pembelajaran interaktif yang kontekstual, responsif, dan menyenangkan bagi siswa-siswi madrasah di wilayah pesisir dan agraris, guna menumbuhkan sikap menghormati konstitusi serta karakter <strong>Cinta Ilmu dan Cinta Tanah Air</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-amber-400 font-bold">MPI PKn MTs</span>
+                    <span>• Modul Digital UUD NRI Tahun 1945</span>
+                </div>
+                <p class="text-center sm:text-right">
+                    Dikembangkan untuk Guru & Siswa MTs di Lingkungan Kanwil Kemenag Provinsi Gorontalo (Gorontalo Utara).
+                </p>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // GLOBAL STATE
+        const appState = {
+            studentName: '',
+            studentClass: 'VII A',
+            studentLocation: '',
+            audioEnabled: true,
+            activeTab: 'modul1',
+            quizAnswers: {},
+            quizScore: 0,
+            gasWebAppUrl: localStorage.getItem('gas_web_app_url') || 'https://script.google.com/macros/s/AKfycbwIGgQufG4NCjeNpNq8E_yXFi_ge-4UE64zumOupQGiPq3IXI9fg27tpdHTX4VGmrSI/exec',
+            hierarchyUserOrder: [],
+            hierarchyCorrectOrder: [
+                "UUD NRI Tahun 1945",
+                "Ketetapan MPR",
+                "Undang-Undang / Perppu",
+                "Peraturan Pemerintah (PP)",
+                "Peraturan Presiden (Perpres)",
+                "Perda Provinsi",
+                "Perda Kabupaten/Kota (Gorut)"
+            ]
+        };
+
+        // GOOGLE SHEETS DATABASE FUNCTIONS
+        function openDatabaseSettings() {
+            playSound('click');
+            const modal = document.getElementById('modal-db-settings');
+            const input = document.getElementById('input-gas-url');
+            input.value = appState.gasWebAppUrl;
+            
+            updateDBStatusUI();
+            modal.classList.remove('hidden');
+        }
+
+        function closeDatabaseSettings() {
+            playSound('click');
+            document.getElementById('modal-db-settings').classList.add('hidden');
+        }
+
+        function updateDBStatusUI() {
+            const statusEl = document.getElementById('db-connection-status');
+            const syncInd = document.getElementById('db-sync-indicator');
+            
+            if (appState.gasWebAppUrl) {
+                statusEl.innerText = 'Status: ✅ Terhubung ke Google Sheets Web App';
+                statusEl.className = 'text-[11px] font-semibold text-emerald-700 p-2 bg-emerald-50 rounded-lg';
+                if (syncInd) syncInd.innerText = '🟢 Status Sync: Database Google Sheets Guru (Aktif)';
+            } else {
+                statusEl.innerText = 'Status: ⚪ Belum Terhubung (Menggunakan Data Lokal)';
+                statusEl.className = 'text-[11px] font-semibold text-slate-500 p-2 bg-slate-50 rounded-lg';
+                if (syncInd) syncInd.innerText = '⚪ Status Sync: Standalone Offline Mode';
+            }
+        }
+
+        function saveDatabaseURL() {
+            playSound('click');
+            const val = document.getElementById('input-gas-url').value.trim();
+            appState.gasWebAppUrl = val;
+            localStorage.setItem('gas_web_app_url', val);
+            
+            updateDBStatusUI();
+            closeDatabaseSettings();
+            showToast(val ? 'URL Database disimpam & disinkronkan!' : 'Database diset ke mode lokal');
+            
+            if (val) {
+                fetchQuestionsFromGAS();
+            }
+        }
+
+        function fetchQuestionsFromGAS() {
+            if (!appState.gasWebAppUrl) return;
+            
+            const fetchUrl = `${appState.gasWebAppUrl}?action=getQuestions`;
+            fetch(fetchUrl)
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        // Timpa bank soal lokal dengan soal terbaru dari Google Sheet
+                        quizBank.length = 0;
+                        data.forEach(q => quizBank.push(q));
+                        renderQuiz();
+                        showToast('Soal evaluasi diperbarui dari Google Sheets Guru!', true);
+                    }
+                })
+                .catch(err => {
+                    console.log('Gagal memuat soal dari GAS, memakai data fallback:', err);
+                });
+        }
+
+        function sendStudentResultToGAS(correctCount, wrongCount, score) {
+            const statusBox = document.getElementById('db-save-status-box');
+            if (!appState.gasWebAppUrl) {
+                if (statusBox) {
+                    statusBox.classList.remove('hidden');
+                    statusBox.className = "p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold max-w-lg mx-auto";
+                    statusBox.innerHTML = "ℹ️ Hasil disimpan di browser lokal (Hubungkan <strong>DB Sheets</strong> di menu atas untuk menyimpan ke Google Spreadsheet Guru).";
+                }
+                return;
+            }
+
+            if (statusBox) {
+                statusBox.classList.remove('hidden');
+                statusBox.className = "p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 font-semibold max-w-lg mx-auto";
+                statusBox.innerHTML = "🔄 Mengirim hasil pengerjaan ke Google Spreadsheet Guru...";
+            }
+
+            // Susun rincian jawaban siswa
+            const labels = ['A', 'B', 'C', 'D'];
+            let answersListArray = [];
+            let detailedAnalysisArray = [];
+
+            quizBank.forEach((q, idx) => {
+                const userChoiceIdx = appState.quizAnswers[q.id];
+                const userChoiceLabel = userChoiceIdx !== undefined ? labels[userChoiceIdx] : '-';
+                const correctLabel = labels[q.correctIndex];
+                const isCorrect = userChoiceIdx === q.correctIndex;
+
+                answersListArray.push(`Soal ${idx + 1}: [${userChoiceLabel}]`);
+                detailedAnalysisArray.push(`S${idx + 1}: ${userChoiceLabel} (${isCorrect ? 'Benar' : 'Salah, Kunci: ' + correctLabel})`);
+            });
+
+            const payload = {
+                timestamp: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Makassar' }),
+                studentName: appState.studentName,
+                studentClass: appState.studentClass,
+                studentLocation: appState.studentLocation,
+                correctCount: correctCount,
+                wrongCount: wrongCount,
+                score: score,
+                answersList: answersListArray.join(', '),
+                detailedAnalysis: detailedAnalysisArray.join(' | ')
+            };
+
+            // Kirim menggunakan POST / GET fallback untuk menghindari batasan CORS
+            fetch(appState.gasWebAppUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                if (statusBox) {
+                    statusBox.className = "p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 font-semibold max-w-lg mx-auto";
+                    statusBox.innerHTML = "✅ <strong>Berhasil!</strong> Hasil evaluasi siswa telah dikirim & tersimpan di Google Spreadsheet Guru.";
+                }
+            })
+            .catch(err => {
+                console.error("Gagal simpan ke GAS:", err);
+                if (statusBox) {
+                    statusBox.className = "p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-900 font-semibold max-w-lg mx-auto";
+                    statusBox.innerHTML = "⚠️ Gagal mengirim ke Google Sheets. Pastikan koneksi internet atau URL Apps Script sudah benar.";
+                }
+            });
+        }
+
+        // WEB AUDIO SYNTHESIZER
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        const timelineData = {
+            1: {
+                title: "Sidang BPUPK Pertama (29 Mei - 1 Juni 1945)",
+                highlight: "Perumusan Gagasan Dasar Negara",
+                desc: "Tokoh-tokoh bangsa seperti Mr. Mohammad Yamin, Prof. Dr. Soepomo, dan Ir. Soekarno menyampaikan gagasan mengenai dasar negara Indonesia merdeka. Pada 1 Juni 1945, Ir. Soekarno menyampaikan pidato bersejarah tentang lahirnya Pancasila.",
+                value: "Cinta Ilmu & Kemerdekaan Berpikir: Para tokoh memaparkan pemikiran keilmuan kenegaraan terbaik demi masa depan bangsa."
+            },
+            2: {
+                title: "Panitia Sembilan (22 Juni 1945)",
+                highlight: "Penyusunan Rancangan Pembukaan UUD (Piagam Jakarta)",
+                desc: "Panitia Sembilan yang diketuai Ir. Soekarno merumuskan kesepakatan naskah mukaddimah (Pembukaan UUD 1945) yang dikenal sebagai Piagam Jakarta (Jakarta Charter).",
+                value: "Kebersamaan & Musyawarah: Menghubungkan berbagai aspirasi kebangsaan secara bijaksana."
+            },
+            3: {
+                title: "Sidang BPUPK Kedua (10 - 17 Juli 1945)",
+                highlight: "Penyusunan Batang Tubuh / Pasal-Pasal UUD",
+                desc: "BPUPK membentuk Panitia Perancang UUD yang diketuai Ir. Soekarno. Panitia berhasil menyusun naskah rancangan Undang-Undang Dasar yang terdiri atas Pembukaan dan Batang Tubuh.",
+                value: "Kerja Sama Modular: Pembagian panitia kerja (ekonomi, keuangan, perancang UUD) terlaksana secara terstruktur."
+            },
+            4: {
+                title: "Sidang PPKI & Pengesahan UUD (18 Agustus 1945)",
+                highlight: "Pengesahan UUD NRI 1945 & Pemilihan Presiden/Wapres",
+                desc: "Sehari setelah Proklamasi, PPKI mengesahkan UUD NRI Tahun 1945 sebagai Hukum Dasar Negara, memilih Ir. Soekarno sebagai Presiden & Drs. Moh. Hatta sebagai Wakil Presiden, serta menyepakati perubahan kalimat pada Pembukaan UUD demi keutuhan persatuan NKRI.",
+                value: "Cinta Tanah Air: Mengutamakan persatuan dan kesatuan nasional di atas kepentingan kelompok."
+            }
+        };
+
+        function loadTimelineStep(step) {
+            playSound('click');
+            
+            // Highlight buttons
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`time-btn-${i}`);
+                if (i === step) {
+                    btn.className = "timeline-step-btn p-4 rounded-xl border-2 border-emerald-600 bg-emerald-50 shadow-md text-left transition";
+                } else {
+                    btn.className = "timeline-step-btn p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 text-left transition bg-slate-50";
+                }
+            }
+
+            const data = timelineData[step];
+            const box = document.getElementById('timeline-detail-box');
+            box.innerHTML = `
+                <div class="space-y-3">
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-200 px-3 py-1 rounded-full">
+                        ${data.highlight}
+                    </span>
+                    <h4 class="text-xl font-bold text-slate-800">${data.title}</h4>
+                    <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">${data.desc}</p>
+                    <div class="mt-4 pt-3 border-t border-emerald-200 text-xs font-semibold text-emerald-900 flex items-start gap-2">
+                        <span>✨ Nilai Karakter:</span>
+                        <span>${data.value}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initHierarchyGame() {
+            appState.hierarchyUserOrder = [];
+            renderHierarchyUI();
+        }
+
+        function renderHierarchyUI() {
+            const pyramidContainer = document.getElementById('pyramid-target-container');
+            const sourceContainer = document.getElementById('source-cards-container');
+
+            pyramidContainer.innerHTML = '';
+            sourceContainer.innerHTML = '';
+
+            // Generate Pyramid Target Slots (7 levels)
+            for (let i = 0; i < 7; i++) {
+                const isFilled = appState.hierarchyUserOrder[i] !== undefined;
+                const filledValue = isFilled ? appState.hierarchyUserOrder[i] : '';
+
+                const slot = document.createElement('div');
+                slot.className = `p-3 rounded-xl border-2 border-dashed transition flex items-center justify-between text-xs font-bold ${isFilled ? 'bg-emerald-50 border-emerald-500 text-emerald-900' : 'bg-slate-50 border-slate-300 text-slate-400'}`;
+                
+                slot.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">${i + 1}</span>
+                        <span>${isFilled ? filledValue : `[ Tingkat ${i + 1} - Kosong ]`}</span>
+                    </div>
+                    ${isFilled ? `<button onclick="removeFromHierarchy(${i})" class="text-red-500 hover:text-red-700 text-xs">❌ Hapus</button>` : ''}
+                `;
+                pyramidContainer.appendChild(slot);
+            }
+
+            // Generate Remaining Available Source Cards (Shuffled or standard list)
+            const availableItems = appState.hierarchyCorrectOrder.filter(item => !appState.hierarchyUserOrder.includes(item));
+
+            if (availableItems.length === 0) {
+                sourceContainer.innerHTML = `<div class="text-xs text-emerald-700 font-bold p-3 bg-emerald-50 rounded-xl">Semua tingkat sudah diisi! Silakan periksa hasil di bawah.</div>`;
+                checkHierarchyResult();
+            } else {
+                availableItems.forEach(item => {
+                    const card = document.createElement('button');
+                    card.onclick = () => addToHierarchy(item);
+                    card.className = "w-full text-left p-3 rounded-xl bg-white border border-slate-200 shadow-sm hover:border-blue-500 hover:bg-blue-50 text-xs font-bold text-slate-700 transition flex items-center justify-between";
+                    card.innerHTML = `
+                        <span>📜 ${item}</span>
+                        <span class="text-blue-600 font-normal">Tambah ➕</span>
+                    `;
+                    sourceContainer.appendChild(card);
+                });
+            }
+        }
+
+        function addToHierarchy(item) {
+            playSound('click');
+            if (appState.hierarchyUserOrder.length < 7) {
+                appState.hierarchyUserOrder.push(item);
+                renderHierarchyUI();
+            }
+        }
+
+        function removeFromHierarchy(index) {
+            playSound('click');
+            appState.hierarchyUserOrder.splice(index, 1);
+            document.getElementById('hierarchy-feedback').className = 'hidden';
+            renderHierarchyUI();
+        }
+
+        function resetHierarchyGame() {
+            playSound('click');
+            appState.hierarchyUserOrder = [];
+            document.getElementById('hierarchy-feedback').className = 'hidden';
+            renderHierarchyUI();
+        }
+
+        function checkHierarchyResult() {
+            const feedback = document.getElementById('hierarchy-feedback');
+            feedback.classList.remove('hidden');
+
+            let isAllCorrect = true;
+            for (let i = 0; i < 7; i++) {
+                if (appState.hierarchyUserOrder[i] !== appState.hierarchyCorrectOrder[i]) {
+                    isAllCorrect = false;
+                    break;
+                }
+            }
+
+            if (isAllCorrect) {
+                playSound('correct');
+                feedback.className = "p-4 rounded-xl text-xs font-semibold bg-emerald-100 text-emerald-950 border border-emerald-300";
+                feedback.innerHTML = "🎉 <strong>Sempurna!</strong> Urutan Hirarki Hukum Perundang-undangan kamu 100% Benar sesuai UU No. 12 Tahun 2011! UUD 1945 berada di puncak tertinggi.";
+            } else {
+                playSound('wrong');
+                feedback.className = "p-4 rounded-xl text-xs font-semibold bg-amber-100 text-amber-950 border border-amber-300";
+                feedback.innerHTML = "⚠️ <strong>Masih ada urutan yang belum pas!</strong> Ingat: UUD 1945 berada di paling atas, diikuti Tap MPR, UU/Perppu, PP, Perpres, Perda Prov, dan Perda Kab/Kota.";
+            }
+        }
+
+        function updateSimState(val) {
+            playSound('click');
+            const card = document.getElementById('sim-result-card');
+            if (val == 0) {
+                card.className = "p-5 rounded-xl border bg-red-50 border-red-200 text-red-950 space-y-2";
+                card.innerHTML = `
+                    <h4 class="font-bold text-sm flex items-center gap-2">❌ Kondisi 0: Konstitusi Diabaikan (Kekuasaan Tanpa Batas)</h4>
+                    <p class="text-xs leading-relaxed">
+                        Jika UUD 1945 tidak berfungsi sebagai pembatas kekuasaan, pejabat publik dapat membuat aturan sewenang-wenang. Hak warga negara (seperti hak nelayan melaut dan hak pendidikan siswa) rentan terabaikan.
+                    </p>
+                `;
+            } else if (val == 1) {
+                card.className = "p-5 rounded-xl border bg-amber-50 border-amber-200 text-amber-950 space-y-2";
+                card.innerHTML = `
+                    <h4 class="font-bold text-sm flex items-center gap-2">⚠️ Kondisi 1: Pelaksanaan Sebagian</h4>
+                    <p class="text-xs leading-relaxed">
+                        Hukum tertulis ada, namun fungsi pengawasan belum berjalan maksimal. Masih terjadi penyimpangan aturan daerah yang tumpang tindih dengan undang-undang nasional.
+                    </p>
+                `;
+            } else {
+                card.className = "p-5 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-950 space-y-2";
+                card.innerHTML = `
+                    <h4 class="font-bold text-sm flex items-center gap-2">✅ Kondisi 2: Konsistensi Konstitusional Utuh</h4>
+                    <p class="text-xs leading-relaxed">
+                        UUD 1945 berfungsi optimal sebagai Alat Kontrol dan Pembatas Kekuasaan. Keadilan sosial, kelestarian lingkungan pesisir Gorut, dan kesejahteraan masyarakat pertanian terjamin dengan baik.
+                    </p>
+                `;
+            }
+        }
+
+        function toggleReasoning(elementId) {
+            playSound('click');
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.classList.toggle('hidden');
+            }
+        }
+
+        const quizBank = [
+            {
+                id: 1,
+                question: "Dalam Sidang PPKI tanggal 18 Agustus 1945, terjadi kesepakatan bersejarah bangsa Indonesia terkait pengesahan UUD 1945. Manakah di antara tindakan berikut yang MENUNJUKKAN perubahaan penting pada rancangan Pembukaan UUD 1945 demi menjaga persatuan bangsa?",
+                options: [
+                    "A. Mengubah istilah 'Presiden' menjadi 'Kepala Negara'",
+                    "B. Menghapus 7 kata pada sila pertama Piagam Jakarta menjadi 'Ketuhanan Yang Maha Esa'",
+                    "C. Menghapus pasal tentang pertahanan dan keamanan negara",
+                    "D. Mengganti nama lembaga BPUPK menjadi PPKI"
+                ],
+                correctIndex: 1,
+                explanation: "Para pendiri bangsa sepakat mengganti rumus 'Ketuhanan dengan kewajiban menjalankan syariat Islam bagi pemeluk-pemeluknya' menjadi 'Ketuhanan Yang Maha Esa' demi menjaga toleransi dan persatuan NKRI yang majemuk dari Sabang sampai Merauke."
+            },
+            {
+                id: 2,
+                question: "Di Kabupaten Gorontalo Utara, Pemerintah Daerah menerbitkan Peraturan Daerah (Perda) tentang Perlindungan Wilayah Tangkap Nelayan Tradisional dan Kelestarian Pesisir. Berdasarkan UU No. 12 Tahun 2011, bagaimanakah kedudukan Perda Kabupaten tersebut terhadap UUD NRI Tahun 1945?",
+                options: [
+                    "A. Perda Kabupaten berada di atas UUD 1945 karena bersifat lokal",
+                    "B. Perda Kabupaten setara dengan UUD 1945",
+                    "C. Perda Kabupaten berada di bawah UUD 1945 dan tidak boleh bertentangan dengannya",
+                    "D. UUD 1945 harus disesuaikan dengan Perda Kabupaten"
+                ],
+                correctIndex: 2,
+                explanation: "UUD NRI Tahun 1945 merupakan hukum dasar tertinggi dalam tata urutan peraturan perundang-undangan di Indonesia. Seluruh aturan di bawahnya, termasuk Perda Kabupaten Gorontalo Utara, tidak boleh bertentangan dengan UUD 1945."
+            },
+            {
+                id: 3,
+                question: "Ketika lembaga pemerintah atau pejabat publik membuat aturan yang membatasi hak warga negara secara sewenang-wenang, warga negara dapat mengajukan uji materi (judicial review) ke Mahkamah Konstitusi. Hal ini membuktikan fungsi UUD NRI Tahun 1945 sebagai...",
+                options: [
+                    "A. Alat pendorong perdagangan ekspor luar negeri",
+                    "B. Alat kontrol dan pembatas kekuasaan agar tidak terjadi kesewenang-wenangan",
+                    "C. Alat penentu kuota hasil panen jagung di daerah",
+                    "D. Dokumen pelengkap administrasi kantor desa saja"
+                ],
+                correctIndex: 1,
+                explanation: "UUD 1945 berfungsi sebagai 'Alat Kontrol' (menguji apakah aturan di bawah UUD sesuai/tidak) dan 'Pembatas Kekuasaan' (penentu batas wewenang penguasa agar hak-hak warga negara terlindungi)."
+            },
+            {
+                id: 4,
+                question: "Ahmad adalah seorang siswa MTs di Kwandang, Gorontalo Utara. Ayahnya adalah seorang nelayan. Ahmad rajin belajar PKn dan membantu menjaga kebersihan pantai tempat pelelangan ikan. Sikap Ahmad mencerminkan wujud penghormatan terhadap UUD NRI Tahun 1945, khususnya pelaksanaan...",
+                options: [
+                    "A. Pasal 31 (Hak Pendidikan) dan Pasal 33 (Pengelolaan Sumber Daya Alam untuk Kemakmuran Rakyat)",
+                    "B. Pasal 29 saja tentang kebebasan beragama",
+                    "C. Menolak aturan sekolah karena pantai milik umum",
+                    "D. Hanya menjalankan hak tanpa mau melaksanakan kewajiban"
+                ],
+                correctIndex: 0,
+                explanation: "Dengan menuntut ilmu di MTs (Pasal 31) dan menjaga lingkungan pesisir (Pasal 33 ayat 3: bumi, air, dan kekayaan alam dikuasai negara untuk sebesar-besar kemakmuran rakyat), Ahmad mewujudkan Cinta Ilmu dan Cinta Tanah Air secara seimbang."
+            },
+            {
+                id: 5,
+                question: "Sebagai warga madrasah yang taat pada norma dan hukum dasar negara, contoh perilaku sederhana siswa MTs dalam kehidupan sehari-hari yang mencerminkan ketaatan pada nilai konstitusi adalah...",
+                options: [
+                    "A. Melanggar tata tertib madrasah jika tidak ada guru yang melihat",
+                    "B. Mematuhi kesepakatan bersama, menghormati perbedaan pendapat saat musyawarah kelas, dan disiplin waktu",
+                    "C. Mengikuti aturan hanya saat dinilai oleh guru PKn",
+                    "D. Mengutamakan kepentingan pribadi di atas kepentingan bersama"
+                ],
+                correctIndex: 1,
+                explanation: "Sikap konstitusional dimulai dari lingkungan terdekat seperti madrasah melalui budaya musyawarah, mematuhi kesepakatan/tata tertib, dan menghargai hak teman."
+            }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-questions-container');
+            container.innerHTML = '';
+
+            quizBank.forEach((q, idx) => {
+                const qCard = document.createElement('div');
+                qCard.className = "bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4";
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    const isSelected = appState.quizAnswers[q.id] === optIdx;
+                    let btnClass = "w-full text-left p-3.5 rounded-xl border transition text-xs font-medium flex items-center justify-between ";
+                    
+                    if (appState.quizAnswers[q.id] !== undefined) {
+                        // Question already answered
+                        if (optIdx === q.correctIndex) {
+                            btnClass += "bg-emerald-100 border-emerald-500 text-emerald-950 font-bold";
+                        } else if (isSelected && optIdx !== q.correctIndex) {
+                            btnClass += "bg-red-100 border-red-500 text-red-950 font-bold";
+                        } else {
+                            btnClass += "bg-slate-50 border-slate-200 text-slate-400 opacity-60";
+                        }
+                    } else {
+                        // Not answered yet
+                        btnClass += "bg-slate-50 border-slate-200 hover:border-amber-400 hover:bg-amber-50 text-slate-800";
+                    }
+
+                    optionsHTML += `
+                        <button onclick="selectQuizAnswer(${q.id}, ${optIdx})" ${appState.quizAnswers[q.id] !== undefined ? 'disabled' : ''} class="${btnClass}">
+                            <span>${opt}</span>
+                            ${appState.quizAnswers[q.id] !== undefined && optIdx === q.correctIndex ? '<span>✅</span>' : ''}
+                            ${isSelected && optIdx !== q.correctIndex ? '<span>❌</span>' : ''}
+                        </button>
+                    `;
+                });
+
+                // Rationale Box
+                const hasAnswered = appState.quizAnswers[q.id] !== undefined;
+                const isCorrect = appState.quizAnswers[q.id] === q.correctIndex;
+
+                let rationaleHTML = '';
+                if (hasAnswered) {
+                    rationaleHTML = `
+                        <div class="p-4 rounded-xl text-xs space-y-1 ${isCorrect ? 'bg-emerald-50 border border-emerald-200 text-emerald-950' : 'bg-red-50 border border-red-200 text-red-950'}">
+                            <p class="font-bold">${isCorrect ? '🎉 Jawaban Tepat!' : '⚠️ Belum Tepat'}</p>
+                            <p class="leading-relaxed"><strong>Pembahasan Edukatif:</strong> ${q.explanation}</p>
+                        </div>
+                    `;
+                }
+
+                qCard.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
+                            Soal Nomor ${idx + 1}
+                        </span>
+                        ${hasAnswered ? `<span class="text-xs font-bold ${isCorrect ? 'text-emerald-600' : 'text-red-600'}">${isCorrect ? '+20 Poin' : '+0 Poin'}</span>` : ''}
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm leading-relaxed">${q.question}</h4>
+                    <div class="space-y-2">
+                        ${optionsHTML}
+                    </div>
+                    ${rationaleHTML}
+                `;
+
+                container.appendChild(qCard);
+            });
+
+            updateQuizMetrics();
+        }
+
+        function selectQuizAnswer(qId, optIdx) {
+            const question = quizBank.find(q => q.id === qId);
+            if (!question) return;
+
+            appState.quizAnswers[qId] = optIdx;
+
+            if (optIdx === question.correctIndex) {
+                playSound('correct');
+                showToast('Jawaban Benar! (+20 Poin)', true);
+            } else {
+                playSound('wrong');
+                showToast('Jawaban Belum Tepat. Pelajari pembahasannya!', false);
+            }
+
+            renderQuiz();
+        }
+
+        function updateQuizMetrics() {
+            const answeredIds = Object.keys(appState.quizAnswers);
+            const answeredCount = answeredIds.length;
+            
+            let totalScore = 0;
+            let correctCount = 0;
+
+            quizBank.forEach(q => {
+                if (appState.quizAnswers[q.id] === q.correctIndex) {
+                    totalScore += 20;
+                    correctCount++;
+                }
+            });
+
+            appState.quizScore = totalScore;
+
+            document.getElementById('quiz-score-display').innerText = totalScore;
+            document.getElementById('quiz-answered-count').innerText = answeredCount;
+
+            // If all 5 questions answered, show final scorecard
+            if (answeredCount === 5) {
+                showFinalQuizResults(correctCount, totalScore);
+            }
+        }
+
+        function showFinalQuizResults(correctCount, score) {
+            playSound('fanfare');
+            const card = document.getElementById('quiz-results-card');
+            card.classList.remove('hidden');
+
+            const wrongCount = quizBank.length - correctCount;
+
+            document.getElementById('res-correct').innerText = `${correctCount} / ${quizBank.length}`;
+            document.getElementById('res-score').innerText = score;
+
+            const iconEl = document.getElementById('quiz-badge-icon');
+            const titleEl = document.getElementById('quiz-badge-title');
+            const msgEl = document.getElementById('quiz-final-message');
+            const statusEl = document.getElementById('res-status');
+
+            if (score >= 80) {
+                iconEl.innerText = '🏆';
+                titleEl.innerText = 'Duta Konstitusi Pesisir & Agraris';
+                msgEl.innerText = `MasyaAllah, Luar Biasa ${appState.studentName}! Anda telah memahami Sejarah, Kedudukan, dan Fungsi UUD 1945 dengan Sangat Baik.`;
+                statusEl.innerText = 'Sangat Memuaskan';
+                statusEl.className = 'text-base font-bold text-emerald-600';
+            } else if (score >= 60) {
+                iconEl.innerText = '🎖️';
+                titleEl.innerText = 'Ksatria Pancasila MTs';
+                msgEl.innerText = `Bagus sekali ${appState.studentName}! Pemahaman Anda sudah baik, tingkatkan kembali eksplorasi modul untuk meraih nilai sempurna.`;
+                statusEl.innerText = 'Baik / Cukup';
+                statusEl.className = 'text-base font-bold text-amber-600';
+            } else {
+                iconEl.innerText = '📖';
+                titleEl.innerText = 'Pembelajar Konstitusi Muda';
+                msgEl.innerText = `Tetap Semangat ${appState.studentName}! Silakan ulas kembali Modul 1 hingga Modul 4 lalu cobalah kuis ini sekali lagi.`;
+                statusEl.innerText = 'Perlu Pengayaan';
+                statusEl.className = 'text-base font-bold text-red-600';
+            }
+
+            // Kirim Otomatis ke Database Google Sheets jika URL dikonfigurasi
+            sendStudentResultToGAS(correctCount, wrongCount, score);
+
+            card.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            playSound('click');
+            appState.quizAnswers = {};
+            appState.quizScore = 0;
+            document.getElementById('quiz-results-card').classList.add('hidden');
+            renderQuiz();
+            showToast('Kuis telah direset. Selamat mengerjakan ulang!');
+        }
+
+        function printSummaryCertificate() {
+            playSound('click');
+            const printWindow = window.open('', '_blank');
+            const dateStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            const printHTML = `
+                <!DOCTYPE html>
+                <html lang="id">
+                <head>
+                    <title>Sertifikat Capaian Pembelajaran - ${appState.studentName}</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; background: #fff; }
+                        .border-box { border: 8px double #D48800; padding: 30px; text-align: center; border-radius: 12px; }
+                        h1 { color: #B71C1C; font-size: 24px; margin-bottom: 5px; }
+                        h2 { color: #004D40; font-size: 18px; margin-top: 0; }
+                        .score { font-size: 36px; font-weight: bold; color: #D48800; margin: 15px 0; }
+                        .info { font-size: 14px; margin: 20px 0; text-align: left; display: inline-block; line-height: 1.8; }
+                        .footer { margin-top: 40px; font-size: 12px; border-top: 1px solid #ccc; pt: 10px; display: flex; justify-space-between; }
+                    </style>
+                </head>
+                <body>
+                    <div class="border-box">
+                        <p style="font-size: 12px; font-weight: bold; letter-spacing: 2px; color: #666;">KANWIL KEMENTERIAN AGAMA PROVINSI GORONTALO</p>
+                        <p style="font-size: 11px; color: #888;">KANTOR KEMENTERIAN AGAMA KABUPATEN GORONTALO UTARA</p>
+                        <hr style="border: 0; border-top: 2px solid #D48800; margin: 15px 0;">
+                        
+                        <h1>SERTIFIKAT CAPAIAN EVALUASI KONSTITUSI</h1>
+                        <h2>Mata Pelajaran PKn - Fase D / Kelas VII MTs</h2>
+                        
+                        <p style="margin-top: 25px; font-size: 14px;">Diberikan kepada siswa:</p>
+                        <h2 style="font-size: 22px; color: #1e293b; text-decoration: underline;">${appState.studentName}</h2>
+                        
+                        <div class="info">
+                            <strong>Kelas / Rombel:</strong> ${appState.studentClass}<br>
+                            <strong>Madrasah / Lokasi:</strong> ${appState.studentLocation}<br>
+                            <strong>Topik Pembelajaran:</strong> Sejarah, Kedudukan, & Fungsi UUD NRI Tahun 1945<br>
+                            <strong>Tanggal Selesai:</strong> ${dateStr}
+                        </div>
+
+                        <div class="score">
+                            NILAI KUIS: ${appState.quizScore} / 100
+                        </div>
+
+                        <p style="font-size: 13px; font-style: italic; color: #475569;">
+                            "Menunjukkan Sikap Menghormati Konstitusi dalam Kehidupan Sehari-hari sebagai Wujud Cinta Ilmu & Cinta Tanah Air."
+                        </p>
+
+                        <br><br>
+                        <table style="width: 100%; font-size: 12px; text-align: center; margin-top: 30px;">
+                            <tr>
+                                <td>Mengetahui,<br>Guru Pembimbing PKn MTs</td>
+                                <td>Gorontalo Utara, ${dateStr}<br>Siswa Pembelajar</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 50px;">( ______________________ )</td>
+                                <td style="padding-top: 50px;">( <strong>${appState.studentName}</strong> )</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <script>
+                        window.onload = function() { window.print(); }
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.write(printHTML);
+            printWindow.document.close();
+        }
+
+        window.onload = function() {
+            // Check Database connection state
+            updateDBStatusUI();
+
+            if (appState.gasWebAppUrl) {
+                fetchQuestionsFromGAS();
+            }
+
+            // Load initial timeline step
+            loadTimelineStep(1);
+            
+            // Initialize Hierarchy game
+            initHierarchyGame();
+
+            // Initialize Simulation slider
+            updateSimState(2);
+
+            // Initialize Quiz
+            renderQuiz();
+
+            console.log("MPI PKn MTs Gorontalo Utara - Ready Offline Mode & Google Sheets DB Integration");
+        };
+    </script>
+</body>
+</html>
